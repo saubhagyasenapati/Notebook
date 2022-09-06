@@ -4,7 +4,9 @@ const User = require('../models/User');
 const router = express.Router();
 var bcrypt=require('bcryptjs')
 var jwt = require('jsonwebtoken');
+var fetchuser=require('../middleware/fetchuser');
 const JWT_SECRET="Saubhagyaisbad"
+
 // Create a User using: POST "/api/auth". Doesn't require auth
 router.post('/createuser',
 body('email','Enter a valid email').isEmail(),
@@ -85,4 +87,19 @@ body('password','it cannot be blacnk').exists(),
      }
 });
 
+//Route 3:get logged in user details api/auth/getuser.Login required
+router.post('/getuser',fetchuser,async(req,res)=>{
+
+try {
+  let userid=req.user.id
+  const user=await User.findById(userid).select('-password');
+  if(user)
+  {
+    res.send(user);
+  }
+} catch (error) {
+  console.error(error.message);
+  res.status(500).send(' Internal server error occured')
+}
+ })
 module.exports = router     
