@@ -16,17 +16,19 @@ body('password','Enter Valid Password').isLength({ min: 5 }),
     // console.log(req.body);
     // const user = new User(req.body);
     // user.save();
+    let success=false;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success,errors: errors.array() });
     }
     try
     {
    let user=await User.findOne({email:req.body.email});
    if(user)
    {
-    return res.status(400).json({error:'sorry user with same email exist'})
+    return res.status(400).json({success,error:'sorry user with same email exist'})
    }
+ 
    const salt= await bcrypt.genSalt(10)
    const secPass= await bcrypt.hash(req.body.password,salt)
     user=await User.create({
@@ -43,7 +45,8 @@ body('password','Enter Valid Password').isLength({ min: 5 }),
       }
     }
    const authToken=  jwt.sign(data,JWT_SECRET)
-    res.json(authToken)
+   success=true;
+    res.json({success,authToken})
     }catch(error){
         console.error(error.message);
         res.status(500).send('Some error occured')
@@ -58,6 +61,7 @@ body('email','Enter a valid email').isEmail(),
 body('password','it cannot be blacnk').exists(),
  async(req,res)=>{
     const errors = validationResult(req);
+    let success=false;
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
@@ -71,7 +75,7 @@ body('password','it cannot be blacnk').exists(),
       const passwordcompare=await bcrypt.compare(password,user.password);
       if(!passwordcompare)
       {
-        return res.status(500).json({error:"Please login with correct credential"})
+        return res.status(500).json({success,error:"Please login with correct credential"})
       }
       const data={
         user:{
@@ -79,7 +83,8 @@ body('password','it cannot be blacnk').exists(),
         }
       }
      const authToken=  jwt.sign(data,JWT_SECRET)
-      res.json({authToken})
+      success=true;
+      res.json({success,authToken})
       
      } catch (error) {
        console.error(error.message);

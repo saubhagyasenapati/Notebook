@@ -7,8 +7,7 @@ const router=express.Router();
 router.get('/fetchallnotes',fetchuser,async(req,res)=>{
 
     try {
-        let userid=req.user.id;
-        const notes=await Note.find({userid});
+        const notes=await Note.find({user:req.user.id});
         res.json(notes)   
     } catch (error) {
         console.error(error.message);
